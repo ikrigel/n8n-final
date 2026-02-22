@@ -1,0 +1,501 @@
+PROMPT FOR CLAUDE CODE
+
+Build a production‑ready Single Page Application using React + TypeScript, with Vitest unit tests and Playwright end‑to‑end UI tests. The app will be deployed on Vercel and will act as a frontend for an existing n8n automation that generates images and videos via GET and POST webhooks.
+
+Follow every requirement below strictly.
+
+1. Tech stack and project setup
+Use Next.js 15 + TypeScript with the App Router, or Vite + React Router. Prefer Next.js + TS.
+
+Configure:
+
+ESLint + Prettier.
+
+Absolute imports (e.g. @/components/...).
+
+Add Vitest for unit/integration tests of hooks, utils, and components.
+
+Add Playwright for UI / end‑to‑end tests (running against the dev server).
+
+Every TS/TSX/JS/JSX file must stay under 250 lines. If a file approaches 230 lines, split into smaller components, hooks, or utility files.
+
+2. Features and pages
+The app is a front‑end to these webhooks:
+
+GET webhooks:
+
+Test: https://ikrigel4.app.n8n.cloud/webhook-test/48c78a6c-559b-4573-acc6-5ca425efd8cf
+
+Production: https://ikrigel4.app.n8n.cloud/webhook/48c78a6c-559b-4573-acc6-5ca425efd8cf
+
+POST webhooks:
+
+Test: https://ikrigel4.app.n8n.cloud/webhook-test/32e4df61-486f-42a5-a2e8-5fb0d595417d
+
+Production: https://ikrigel4.app.n8n.cloud/webhook/32e4df61-486f-42a5-a2e8-5fb0d595417d
+
+Implement these pages/sections:
+
+2.1 Dashboard / Home
+Show:
+
+Short intro text about the app.
+
+Quick action buttons:
+
+“Generate Image (GET)”
+
+“Generate Video (POST)”
+
+“Open Gallery”
+
+“Open Settings”
+
+A small panel with:
+
+Last N log entries.
+
+Last N generated media items (images/videos) from the gallery index.
+
+Quick actions should call the appropriate webhook (based on current env and GET/POST) with a simple default payload or query, and then:
+
+Display results on the Dashboard.
+
+Add a gallery item if the response represents media (image/video).
+
+2.2 Settings page
+Allow configuring application behavior:
+
+Environment selection:
+
+test or production.
+
+Show GET webhook URLs (read‑only but visible):
+
+Test GET URL and Production GET URL as above.
+
+Show POST webhook URLs (read‑only but visible):
+
+Test POST URL and Production POST URL as above.
+
+Toggles / radio buttons to choose active GET URL and active POST URL based on environment.
+
+Logging options:
+
+Enable/disable logging.
+
+Log level: info | debug | error.
+
+Checkbox: “Send logs as JSON to POST webhook”.
+
+Provide buttons:
+
+“Test GET webhook”:
+
+Calls the currently selected GET URL via fetch.
+
+Shows raw JSON/text response in a console panel on the Settings page.
+
+Adds a log entry.
+
+“Test POST webhook”:
+
+Sends JSON { message: "Test from frontend", timestamp: <ISO>, env: <test|production> } to selected POST URL.
+
+Shows raw response and logs it.
+
+All configuration and state must be persisted to localStorage:
+
+Current environment.
+
+Logging settings.
+
+Whether to send logs as JSON.
+
+Any additional config fields you introduce.
+
+2.3 Gallery page
+Show a responsive grid of all generated images and videos.
+
+Each gallery item contains:
+
+Thumbnail:
+
+For images: the image itself.
+
+For videos: video poster or simple <video> with muted/autoplay off.
+
+Type badge: Image or Video.
+
+Created timestamp.
+
+Prompt / description (if available).
+
+Origin metadata:
+
+Environment (test or production).
+
+Webhook type (GET or POST).
+
+Filters:
+
+By media type: All | Images | Videos.
+
+By environment: All | Test | Production.
+
+By date (from/to).
+
+Search text filter on prompt/description.
+
+Item actions:
+
+“Preview” (fullscreen modal / drawer).
+
+“Download” (trigger browser download).
+
+“Copy URL” (if the backend returns a URL; otherwise disabled).
+
+Maintain a gallery index in localStorage:
+
+Store metadata per item: id, type, prompt, createdAt, env, webhookType, mimeType, url or Blob URL, fileName, etc.
+
+Implement a useGallery hook or equivalent to:
+
+Load index from localStorage on startup.
+
+Append new items.
+
+Optionally prune old entries.
+
+2.4 About page
+Section “About the Programmer”:
+
+Short bio text (placeholder is fine).
+
+Display the attached image pvlv.jpg in a nice card/rounded avatar.
+
+Assume the image file exists in the repo (e.g. public/pvlv.jpg).
+
+Section “About the App”:
+
+Explain that the SPA is a front‑end for n8n workflows that generate images and videos via OpenAI & Nano Banana / Gemini through GET and POST webhooks.
+
+2.5 Help page
+Explain step‑by‑step how to use the app:
+
+Switch between test and production.
+
+Run image/video generation.
+
+Use the logging console; how JSON logs are sent to the POST webhook when enabled.
+
+Use the Gallery filters and open/download media.
+
+Include one or two example JSON payloads for logs.
+
+3. Webhook client and logging
+Create a small client layer, for example src/lib/webhooks.ts:
+
+Types:
+
+WebhookEnvironment = "test" | "production".
+
+WebhookConfig with fields for selected env, URLs, etc.
+
+Response types where helpful.
+
+Functions:
+
+callGetWebhook(config: WebhookConfig, params?: Record<string, string>): Promise<any>
+
+callPostWebhook<T>(config: WebhookConfig, body: T): Promise<any>
+
+Behavior:
+
+Build the URL depending on current environment and GET / POST selection.
+
+Encode query params for GET.
+
+Include Content-Type: application/json headers for POST.
+
+Return JSON if possible, otherwise raw text.
+
+On HTTP error, return a structured error object or throw with clear message.
+
+Logging:
+
+Create a useLogger hook and LogsContext:
+
+logInfo(message: string, meta?: any)
+
+logError(message: string, meta?: any)
+
+Store entries in React state and mirror into localStorage.
+
+An entry should have: id, level, message, meta, timestamp.
+
+If “Send logs as JSON” is enabled:
+
+Use callPostWebhook with body { type: "log", level, message, meta, timestamp }.
+
+Provide a LogsPanel component:
+
+Shows logs with filter by level.
+
+Used in Dashboard and Settings pages.
+
+4. Theming and layout (responsive)
+Implement light, dark, and auto themes:
+
+Use CSS variables or a theme context/provider.
+
+auto uses window.matchMedia("(prefers-color-scheme: dark)").
+
+Persist chosen theme in localStorage.
+
+Provide a theme switcher in the main layout (e.g. sun/moon/auto icons).
+
+Layout:
+
+A main layout component with:
+
+Top navigation bar (or burger on small screens).
+
+Links to: Home, Gallery, Settings, About, Help.
+
+Fully responsive:
+
+Mobile‑first design.
+
+On small screens, cards become single column, grids collapse, nav is compact (hamburger or bottom tab bar).
+
+5. Architecture and file structure
+Keep each file < 250 lines. Split components/hooks accordingly.
+
+Suggested structure (adapt as needed):
+
+src/app/page.tsx – Dashboard.
+
+src/app/settings/page.tsx – Settings.
+
+src/app/gallery/page.tsx – Gallery.
+
+src/app/about/page.tsx – About.
+
+src/app/help/page.tsx – Help.
+
+src/components/layout/Layout.tsx – main layout.
+
+src/components/layout/NavBar.tsx, ThemeToggle.tsx.
+
+src/components/gallery/GalleryGrid.tsx, GalleryFilters.tsx, GalleryItemCard.tsx, GalleryPreviewModal.tsx.
+
+src/components/logs/LogsPanel.tsx.
+
+src/components/settings/EnvSelector.tsx, WebhookTester.tsx, LogSettings.tsx.
+
+src/lib/webhooks.ts.
+
+src/lib/localStorage.ts.
+
+src/contexts/ConfigContext.tsx – env, URLs, theme, etc.
+
+src/contexts/LogsContext.tsx.
+
+src/hooks/useTheme.ts, useGallery.ts, useLogger.ts.
+
+Ensure no single TS/TSX file exceeds 250 lines.
+
+6. Tests with Vitest
+Set up Vitest with React Testing Library.
+
+Create tests for:
+
+Webhook client (src/lib/webhooks.ts):
+
+Test that callGetWebhook builds correct URL for test vs production.
+
+Test that callPostWebhook sends JSON body and handles JSON or text responses.
+
+Mock fetch to simulate success and error responses.
+
+Config + localStorage helpers:
+
+Test that config is correctly saved and loaded from localStorage.
+
+Test that gallery index load/append functions behave as expected.
+
+Hooks:
+
+useLogger:
+
+Logs are added with logInfo / logError.
+
+When JSON logging is enabled, it calls the POST webhook client (mocked).
+
+useGallery:
+
+Adding items updates in‑memory state and localStorage.
+
+Filter by type and env works as expected.
+
+Components (with React Testing Library):
+
+GalleryFilters:
+
+Changing filters calls the provided callback with correct values.
+
+LogsPanel:
+
+Renders entries and responds to level filter changes.
+
+Settings page:
+
+Toggling env updates state and persists to localStorage (mocked).
+
+Place tests in src/__tests__ or next to components (e.g. ComponentName.test.tsx).
+
+7. Playwright UI tests
+Add Playwright to the project with a minimal configuration:
+
+Scripts in package.json:
+
+"test:unit" for Vitest.
+
+"test:e2e" for Playwright.
+
+Create at least these Playwright tests:
+
+tests/navigation.spec.ts:
+
+Start dev server.
+
+Visit /.
+
+Verify that navigation links to:
+
+/settings
+
+/gallery
+
+/about
+
+/help
+work and render the expected headings.
+
+tests/settings-webhook.spec.ts:
+
+Visit /settings.
+
+Toggle between test and production.
+
+Click “Test GET webhook” and check that a result console appears (mock backend using Playwright route interception).
+
+Verify that settings persist after page reload (read from UI).
+
+tests/gallery.spec.ts:
+
+Pre‑seed localStorage with a few fake gallery items via Playwright.
+
+Visit /gallery.
+
+Verify that filters work (type, environment).
+
+Open a gallery item preview modal and close it.
+
+tests/theme.spec.ts:
+
+Visit /.
+
+Toggle through light/dark/auto themes.
+
+Assert that the root element gets the expected theme classes or data attributes.
+
+Use Playwright’s fixtures to mock network calls to the webhooks so tests don’t hit live n8n endpoints.
+
+8. Markdown documentation
+Create a docs/ folder with markdown docs:
+
+Claude.md:
+
+High‑level overview of the app.
+
+How it integrates with n8n webhooks.
+
+How to run locally.
+
+How to run Vitest and Playwright tests.
+
+How to deploy to Vercel.
+
+Architecture.md:
+
+Describe pages, contexts, hooks, and data flow.
+
+Explain webhook client and logging pipeline.
+
+Explain theming and routing.
+
+Gallery.md:
+
+Describe the gallery index structure in localStorage.
+
+How thumbnails are created and how filters work.
+
+Settings.md:
+
+Document every setting (env switch, logging, JSON logs).
+
+Describe GET/POST test buttons and how responses are shown.
+
+9. Vercel deployment
+Ensure npm run build and npm start (or next start) work.
+
+Provide basic instructions in Claude.md for deploying to Vercel, including:
+
+Required environment variables (if any).
+
+Build command and output directory.
+
+Goal: Generate all necessary React + TypeScript code, contexts, hooks, tests (Vitest + Playwright), styles, and markdown documentation to fully implement this specification, while keeping every source file under 250 lines.
+
+10. sending in the payload "audio" - will triger chat responce using voice message in n8n
+sending in the payload "chucknorris" - will triger an n8n http get request from https://api.chucknorris.io/jokes/random random chuck norris joke
+sending in the payload "dad" - will triger in n8n http request from https://icanhazdadjoke.com/ random dad joke
+sending in the payload "question" - will triger chat responce using text message in n8n
+sending "image" will triger image generation in n8n workflow, using openAI
+sending "video" will triger video generation in n8n workflow, using openAI
+"nanobananaimage" - wiil triger nano banana image generation workflow in n8n
+"nanobananavideo" - wiil triger nano banana video generation workflow in n8n
+"addfiletogoogledrive" - will triger a file to be sent to my drive 
+
+All the following flows do not implement a webhook of an answer to be returned to the front.
+
+Add an identifier of the http request, that will show me that the responce should be send back using if node, instead of be sending to telegram.
+
+add a registration to the website using gmail.
+
+I have a table in supabase with the following schema - 
+
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.tasks (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  telegram_id bigint NOT NULL,
+  task_text text NOT NULL,
+  status character varying DEFAULT 'open'::character varying,
+  created_at timestamp with time zone DEFAULT now(),
+  completed_at timestamp with time zone,
+  email text,
+  CONSTRAINT tasks_pkey PRIMARY KEY (id)
+);
+project id - atpnypskunviqexyjdjt
+anon - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0cG55cHNrdW52aXFleHlqZGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxMTMzMjQsImV4cCI6MjA4MjY4OTMyNH0.qA_1Ra_nMDV1fbOHIw5QViAUiTxsk-C0o-4uOADt3IY
+
+Code lines in the project, should have remarks for code clarification.
+Let me know if more information and decisions should be make, and if alterations in n8n, or supabase, should be made, and guide me step by step if needed.
+
+
+
+
