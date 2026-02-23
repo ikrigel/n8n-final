@@ -15,8 +15,42 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { env = 'production', workflowType, userId, email, telegramId, message, requestId } = body;
 
+    // Validate required fields
+    if (!workflowType || !userId || !email || !message) {
+      console.warn('Webhook proxy: Missing required fields', {
+        hasWorkflowType: !!workflowType,
+        hasUserId: !!userId,
+        hasEmail: !!email,
+        hasMessage: !!message
+      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Missing required fields: workflowType, userId, email, message',
+        },
+        { status: 400 }
+      );
+    }
+
     // Select webhook URL based on environment
     const webhookUrl = WEBHOOK_URLS[env as keyof typeof WEBHOOK_URLS] || WEBHOOK_URLS.production;
+    console.log('Webhook proxy forwarding to:', webhookUrl, 'with env:', env);
+
+    // Build request payload, filtering out undefined values
+    const payload: Record<string, any> = {
+      workflow_type: workflowType,
+      user_id: userId,
+      email,
+      request_id: requestId,
+      message,
+    };
+
+    // Only include telegram_id if it's defined
+    if (telegramId !== undefined && telegramId !== null) {
+      payload.telegram_id = telegramId;
+    }
+
+    console.log('Sending to n8n:', JSON.stringify(payload, null, 2));
 
     // Forward the request to n8n
     const response = await fetch(webhookUrl, {
@@ -24,15 +58,10 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        workflow_type: workflowType,
-        user_id: userId,
-        email,
-        telegram_id: telegramId,
-        request_id: requestId,
-        message,
-      }),
+      body: JSON.stringify(payload),
     });
+
+    console.log('n8n response status:', response.status, 'content-type:', response.headers.get('content-type'));
 
     // Check if n8n returned a binary response (image)
     const contentType = response.headers.get('content-type');
@@ -40,6 +69,7 @@ export async function POST(request: NextRequest) {
     if (contentType?.includes('image')) {
       // If it's an image, return it as-is
       const blob = await response.arrayBuffer();
+      console.log('Returning image response, size:', blob.byteLength);
       return new NextResponse(blob, {
         status: response.status,
         headers: {
@@ -51,10 +81,11 @@ export async function POST(request: NextRequest) {
     // Otherwise, try to parse as JSON
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('n8n error response:', response.status, errorText);
       return NextResponse.json(
         {
           success: false,
-          error: `n8n webhook error: HTTP ${response.status} - ${errorText}`,
+          error: `n8n workflow error: HTTP ${response.status} - ${errorText}`,
         },
         { status: response.status }
       );
@@ -62,6 +93,7 @@ export async function POST(request: NextRequest) {
 
     // Return the JSON response from n8n
     const data = await response.json();
+    console.log('n8n success response:', data);
     return NextResponse.json(
       {
         success: true,
@@ -72,7 +104,9 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : '';
     console.error('Webhook proxy error:', errorMessage);
+    if (errorStack) console.error('Stack:', errorStack);
     return NextResponse.json(
       {
         success: false,

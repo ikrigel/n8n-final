@@ -51,11 +51,29 @@ export default function GenerateImagePage() {
       return;
     }
 
+    if (!userId || !userEmail) {
+      setMessage({ type: 'error', text: 'User not authenticated. Please log in.' });
+      return;
+    }
+
     setLoading(true);
     setGeneratedImageUrl(null);
     try {
       const newRequestId = uuidv4();
       setRequestId(newRequestId);
+
+      const requestPayload = {
+        env: config.env,
+        workflowType: 'image',
+        userId,
+        email: userEmail,
+        message: {
+          prompt: prompt.trim(),
+        },
+        requestId: newRequestId,
+      };
+
+      console.log('📤 Sending image generation request:', requestPayload);
 
       // Send request through Next.js API proxy (avoids CORS issues)
       const response = await fetch('/api/webhook', {
@@ -63,29 +81,25 @@ export default function GenerateImagePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          env: config.env,
-          workflowType: 'image',
-          userId,
-          email: userEmail,
-          telegramId: undefined,
-          message: {
-            prompt: prompt.trim(),
-          },
-          requestId: newRequestId,
-        }),
+        body: JSON.stringify(requestPayload),
       });
+
+      console.log('📥 Webhook response status:', response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('❌ Webhook error response:', errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
       // Check if response is an image (binary) - directly from n8n via proxy
       const contentType = response.headers.get('content-type');
+      console.log('📝 Response content-type:', contentType);
+
       if (contentType?.includes('image')) {
         // Convert binary image response to blob and create object URL
         const blob = await response.blob();
+        console.log('✨ Received image blob, size:', blob.size);
         const imageUrl = URL.createObjectURL(blob);
         setGeneratedImageUrl(imageUrl);
 
@@ -99,6 +113,8 @@ export default function GenerateImagePage() {
       } else {
         // If response is JSON (from proxy)
         const data = await response.json();
+        console.log('📦 Response data:', data);
+
         if (data.success && data.image) {
           // Handle JSON response with base64 image data from proxy
           setGeneratedImageUrl(`data:image/png;base64,${data.image}`);
@@ -110,11 +126,14 @@ export default function GenerateImagePage() {
           setPrompt('');
           localStorage.removeItem(STORAGE_KEY); // Clear saved prompt
         } else {
-          throw new Error(data.error || 'Image generation failed');
+          const errorMsg = data.error || 'Image generation failed';
+          console.error('⚠️ Generation failed:', errorMsg);
+          throw new Error(errorMsg);
         }
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      console.error('🔴 Caught error:', errorMsg);
       await logError('Image generation error', { error: errorMsg });
       setMessage({ type: 'error', text: `❌ Error: ${errorMsg}` });
     } finally {
