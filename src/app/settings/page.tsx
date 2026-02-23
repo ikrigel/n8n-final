@@ -12,11 +12,12 @@ import LogSettings from '@/components/settings/LogSettings';
 export default function SettingsPage() {
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Settings</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Configure your application environment, logging preferences, and test
-          webhook connections.
+      <div className="text-center space-y-4 py-8">
+        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 bg-clip-text text-transparent">
+          ⚙️ Settings
+        </h1>
+        <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto font-medium">
+          Configure your application environment, logging preferences, and test webhook connections.
         </p>
       </div>
 

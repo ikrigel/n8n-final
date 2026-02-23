@@ -10,9 +10,11 @@ export default function AboutPage() {
   return (
     <div className="space-y-12">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">About</h1>
-        <p className="text-gray-600 dark:text-gray-400">
+      <div className="text-center space-y-4 py-8">
+        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 bg-clip-text text-transparent">
+          ℹ️ About
+        </h1>
+        <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto font-medium">
           Learn about this project and the person behind it
         </p>
       </div>
@@ -22,7 +24,7 @@ export default function AboutPage() {
         <div className="card text-center">
           <div className="mb-6">
             {/* Note: Replace with actual image */}
-            <div className="w-48 h-48 mx-auto rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
+            <div className="w-48 h-48 mx-auto rounded-full bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center">
               <span className="text-6xl">👤</span>
             </div>
           </div>
@@ -126,8 +128,8 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded p-4">
-          <p className="text-sm text-blue-800 dark:text-blue-200">
+        <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded p-4">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
             <strong>Version:</strong> 1.0.0 | <strong>Built:</strong> February 2026 |
             <strong className="ml-2">Deployed on:</strong> Vercel
           </p>

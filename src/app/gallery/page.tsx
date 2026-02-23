@@ -92,9 +92,11 @@ export default function GalleryPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Gallery</h1>
-        <p className="text-gray-600 dark:text-gray-400">
+      <div className="text-center space-y-4 py-8">
+        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 bg-clip-text text-transparent">
+          🖼️ Gallery
+        </h1>
+        <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto font-medium">
           Browse and manage your generated images and videos
         </p>
       </div>
@@ -103,19 +105,19 @@ export default function GalleryPage() {
       {items.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="card text-center">
-            <div className="text-3xl font-bold text-blue-600">{stats.total}</div>
+            <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">{stats.total}</div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Total Items</p>
           </div>
           <div className="card text-center">
-            <div className="text-3xl font-bold text-purple-600">{stats.images}</div>
+            <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">{stats.images}</div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Images</p>
           </div>
           <div className="card text-center">
-            <div className="text-3xl font-bold text-pink-600">{stats.videos}</div>
+            <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">{stats.videos}</div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Videos</p>
           </div>
           <div className="card text-center">
-            <div className="text-3xl font-bold text-green-600">{stats.test}</div>
+            <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">{stats.test}</div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Test Items</p>
           </div>
         </div>

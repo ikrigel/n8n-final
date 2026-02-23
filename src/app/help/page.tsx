@@ -9,9 +9,11 @@ export default function HelpPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Help & Documentation</h1>
-        <p className="text-gray-600 dark:text-gray-400">
+      <div className="text-center space-y-4 py-8">
+        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 bg-clip-text text-transparent">
+          ❓ Help & Documentation
+        </h1>
+        <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto font-medium">
           Learn how to use this application to generate and manage media
         </p>
       </div>
@@ -161,38 +163,38 @@ export default function HelpPage() {
         <h2 className="text-2xl font-bold">⚙️ Available Workflows</h2>
 
         <div className="space-y-3">
-          <div className="border border-gray-200 dark:border-gray-700 rounded p-3">
-            <div className="font-bold text-blue-600">image</div>
+          <div className="border border-amber-200 dark:border-amber-800 rounded p-3 bg-amber-50 dark:bg-amber-900/20">
+            <div className="font-bold text-amber-600 dark:text-amber-400">image</div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Generate images using OpenAI DALL-E
             </p>
           </div>
-          <div className="border border-gray-200 dark:border-gray-700 rounded p-3">
-            <div className="font-bold text-purple-600">video</div>
+          <div className="border border-amber-200 dark:border-amber-800 rounded p-3 bg-amber-50 dark:bg-amber-900/20">
+            <div className="font-bold text-amber-600 dark:text-amber-400">video</div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Generate videos using AI video generation
             </p>
           </div>
-          <div className="border border-gray-200 dark:border-gray-700 rounded p-3">
-            <div className="font-bold text-pink-600">audio</div>
+          <div className="border border-amber-200 dark:border-amber-800 rounded p-3 bg-amber-50 dark:bg-amber-900/20">
+            <div className="font-bold text-amber-600 dark:text-amber-400">audio</div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Get voice responses from AI chat
             </p>
           </div>
-          <div className="border border-gray-200 dark:border-gray-700 rounded p-3">
-            <div className="font-bold text-green-600">question</div>
+          <div className="border border-amber-200 dark:border-amber-800 rounded p-3 bg-amber-50 dark:bg-amber-900/20">
+            <div className="font-bold text-amber-600 dark:text-amber-400">question</div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Get text responses from AI chat
             </p>
           </div>
-          <div className="border border-gray-200 dark:border-gray-700 rounded p-3">
-            <div className="font-bold text-orange-600">chucknorris</div>
+          <div className="border border-amber-200 dark:border-amber-800 rounded p-3 bg-amber-50 dark:bg-amber-900/20">
+            <div className="font-bold text-amber-600 dark:text-amber-400">chucknorris</div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Get random Chuck Norris jokes from API
             </p>
           </div>
-          <div className="border border-gray-200 dark:border-gray-700 rounded p-3">
-            <div className="font-bold text-yellow-600">dad</div>
+          <div className="border border-amber-200 dark:border-amber-800 rounded p-3 bg-amber-50 dark:bg-amber-900/20">
+            <div className="font-bold text-amber-600 dark:text-amber-400">dad</div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Get random dad jokes from API
             </p>
@@ -237,11 +239,11 @@ export default function HelpPage() {
       </div>
 
       {/* Tips */}
-      <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded p-6 space-y-3">
-        <h2 className="text-xl font-bold text-green-900 dark:text-green-100">
+      <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded p-6 space-y-3">
+        <h2 className="text-xl font-bold text-amber-900 dark:text-amber-100">
           💡 Tips & Best Practices
         </h2>
-        <ul className="space-y-2 text-green-900 dark:text-green-100">
+        <ul className="space-y-2 text-amber-900 dark:text-amber-100">
           <li>✅ Use Test environment to verify workflows before production</li>
           <li>✅ Enable JSON logging to track all webhook interactions</li>
           <li>✅ Regularly clear old logs to keep the application responsive</li>
