@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { ConfigProvider } from '@/contexts/ConfigContext';
-import { LogsProvider } from '@/contexts/LogsContext';
+import { Providers } from '@/components/providers/Providers';
 import Layout from '@/components/layout/Layout';
 import '@/styles/globals.css';
 
@@ -17,11 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ConfigProvider>
-          <LogsProvider>
-            <Layout>{children}</Layout>
-          </LogsProvider>
-        </ConfigProvider>
+        <Providers>
+          <Layout>{children}</Layout>
+        </Providers>
       </body>
     </html>
   );

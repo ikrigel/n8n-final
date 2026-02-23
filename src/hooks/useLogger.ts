@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { LogEntry } from '@/types';
 import { useLogs } from '@/contexts/LogsContext';
 import { useConfig } from '@/contexts/ConfigContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { sendWebhookRequest } from '@/lib/webhooks';
 
 /**
@@ -13,6 +14,7 @@ import { sendWebhookRequest } from '@/lib/webhooks';
 export function useLogger() {
   const { logs, addLog, clearLogs, getLogs } = useLogs();
   const { config } = useConfig();
+  const { userId, userEmail } = useAuth();
 
   // Log info message
   const logInfo = useCallback(
@@ -31,10 +33,6 @@ export function useLogger() {
 
       // Send to webhook if JSON logging enabled
       if (config.sendLogsAsJson) {
-        // Get user ID from session (would be replaced with real session)
-        const userId = 'guest'; // TODO: Get from session
-        const userEmail = 'user@example.com'; // TODO: Get from session
-
         await sendWebhookRequest(
           config.env,
           'log',
@@ -51,7 +49,7 @@ export function useLogger() {
         );
       }
     },
-    [config, addLog]
+    [config, addLog, userId, userEmail]
   );
 
   // Log error message
@@ -71,9 +69,6 @@ export function useLogger() {
 
       // Send to webhook if JSON logging enabled
       if (config.sendLogsAsJson) {
-        const userId = 'guest'; // TODO: Get from session
-        const userEmail = 'user@example.com'; // TODO: Get from session
-
         await sendWebhookRequest(
           config.env,
           'log',
@@ -90,7 +85,7 @@ export function useLogger() {
         );
       }
     },
-    [config, addLog]
+    [config, addLog, userId, userEmail]
   );
 
   // Log debug message

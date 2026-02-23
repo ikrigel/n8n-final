@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useLogger } from '@/hooks/useLogger';
 import { useGallery } from '@/hooks/useGallery';
+import { useAuth } from '@/contexts/AuthContext';
 import { sendWebhookRequest } from '@/lib/webhooks';
 import { v4 as uuidv4 } from 'uuid';
 import LogsPanel from '@/components/logs/LogsPanel';
@@ -17,11 +18,9 @@ export default function DashboardPage() {
   const { config } = useConfig();
   const { logInfo, logError } = useLogger();
   const { getRecentItems } = useGallery();
+  const { userId, userEmail } = useAuth();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
-
-  const userId = 'guest'; // TODO: Get from session
-  const userEmail = 'user@example.com'; // TODO: Get from session
 
   // Handle generate image (GET)
   const handleGenerateImage = async () => {
