@@ -1,5 +1,5 @@
 // Webhook client for communicating with n8n workflows
-import { WebhookEnvironment, WebhookRequest, WebhookResponse, WorkflowType } from '@/types';
+import { WebhookEnvironment, WorkflowType } from '@/types';
 
 // Webhook URLs for n8n
 const WEBHOOK_URLS = {
@@ -39,26 +39,22 @@ export async function sendWebhookRequest(
   requestId: string
 ): Promise<{ success: boolean; requestId: string; queued: boolean; error?: string }> {
   try {
-    const url = buildWebhookURL(env);
-
-    // Build complete webhook request payload
-    const payload: WebhookRequest = {
-      request_id: requestId,
-      user_id: userId,
-      email,
-      telegram_id: telegramId,
-      workflow_type: workflowType,
-      timestamp: new Date().toISOString(),
-      message,
-    };
-
-    // Send POST request to n8n webhook
-    const response = await fetch(url, {
+    // Call our Next.js API proxy instead of n8n directly
+    // This avoids CORS issues since the server calls n8n, not the browser
+    const response = await fetch('/api/webhook', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        env,
+        workflowType,
+        userId,
+        email,
+        telegramId,
+        message,
+        requestId,
+      }),
     });
 
     if (!response.ok) {
@@ -72,11 +68,12 @@ export async function sendWebhookRequest(
       };
     }
 
-    // n8n workflow started successfully
+    const data = await response.json();
     return {
-      success: true,
-      requestId,
-      queued: true,
+      success: data.success,
+      requestId: data.requestId || requestId,
+      queued: data.queued || false,
+      error: data.error,
     };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);

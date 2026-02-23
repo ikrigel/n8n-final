@@ -1,97 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { useConfig } from '@/contexts/ConfigContext';
-import { useLogger } from '@/hooks/useLogger';
 import { useGallery } from '@/hooks/useGallery';
-import { useAuth } from '@/contexts/AuthContext';
-import { sendWebhookRequest } from '@/lib/webhooks';
-import { v4 as uuidv4 } from 'uuid';
 import LogsPanel from '@/components/logs/LogsPanel';
 
 /**
  * Dashboard / Home page
- * Shows quick actions, recent logs, and recent gallery items
+ * Launch pad for all major features with recent activity overview
  */
 export default function DashboardPage() {
   const { config } = useConfig();
-  const { logInfo, logError } = useLogger();
   const { getRecentItems } = useGallery();
-  const { userId, userEmail } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
-
-  // Handle generate image (GET)
-  const handleGenerateImage = async () => {
-    setLoading(true);
-    try {
-      const requestId = uuidv4();
-      const result = await sendWebhookRequest(
-        config.env,
-        'image',
-        userId,
-        userEmail,
-        undefined,
-        { prompt: 'A beautiful landscape' },
-        requestId
-      );
-
-      if (result.success) {
-        await logInfo('Image generation started', { requestId });
-        setMessage({
-          type: 'success',
-          text: 'Image generation request sent successfully',
-        });
-      } else {
-        await logError('Image generation failed', { error: result.error });
-        setMessage({ type: 'error', text: result.error || 'Unknown error' });
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-      await logError('Image generation error', { error: errorMsg });
-      setMessage({ type: 'error', text: errorMsg });
-    } finally {
-      setLoading(false);
-      setTimeout(() => setMessage(null), 5000);
-    }
-  };
-
-  // Handle generate video (POST)
-  const handleGenerateVideo = async () => {
-    setLoading(true);
-    try {
-      const requestId = uuidv4();
-      const result = await sendWebhookRequest(
-        config.env,
-        'video',
-        userId,
-        userEmail,
-        undefined,
-        { prompt: 'A dynamic animation' },
-        requestId
-      );
-
-      if (result.success) {
-        await logInfo('Video generation started', { requestId });
-        setMessage({
-          type: 'success',
-          text: 'Video generation request sent successfully',
-        });
-      } else {
-        await logError('Video generation failed', { error: result.error });
-        setMessage({ type: 'error', text: result.error || 'Unknown error' });
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-      await logError('Video generation error', { error: errorMsg });
-      setMessage({ type: 'error', text: errorMsg });
-    } finally {
-      setLoading(false);
-      setTimeout(() => setMessage(null), 5000);
-    }
-  };
-
   const recentItems = getRecentItems(5);
 
   return (
@@ -109,40 +30,50 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Message Display */}
-      {message && (
-        <div
-          className={`p-4 rounded-lg border-l-4 font-semibold ${
-            message.type === 'success'
-              ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200 border-emerald-400'
-              : 'bg-rose-100 dark:bg-rose-900/40 text-rose-800 dark:text-rose-200 border-rose-400'
-          }`}
+      {/* Quick Actions Grid - Launch Pad */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Link
+          href="/generate/image"
+          className="card hover:shadow-xl transition-all hover:scale-105 cursor-pointer group"
         >
-          {message.type === 'success' ? '✅' : '❌'} {message.text}
-        </div>
-      )}
-
-      {/* Quick Actions Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <button
-          onClick={handleGenerateImage}
-          disabled={loading}
-          className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed h-16 text-lg font-bold flex items-center justify-center"
-        >
-          {loading ? '⏳ Processing...' : '🎨 Generate Image'}
-        </button>
-        <button
-          onClick={handleGenerateVideo}
-          disabled={loading}
-          className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed h-16 text-lg font-bold flex items-center justify-center"
-        >
-          {loading ? '⏳ Processing...' : '🎬 Generate Video'}
-        </button>
-        <Link href="/gallery" className="btn-primary text-center h-16 flex items-center justify-center text-lg font-bold">
-          🖼️ Gallery
+          <div className="text-center space-y-3">
+            <div className="text-5xl group-hover:scale-110 transition-transform">🎨</div>
+            <h3 className="text-xl font-bold text-amber-600 dark:text-amber-400">Generate Image</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Create AI images with custom prompts</p>
+          </div>
         </Link>
-        <Link href="/logs" className="btn-primary text-center h-16 flex items-center justify-center text-lg font-bold">
-          📋 View Logs
+
+        <Link
+          href="/generate/video"
+          className="card hover:shadow-xl transition-all hover:scale-105 cursor-pointer group"
+        >
+          <div className="text-center space-y-3">
+            <div className="text-5xl group-hover:scale-110 transition-transform">🎬</div>
+            <h3 className="text-xl font-bold text-amber-600 dark:text-amber-400">Generate Video</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Create AI videos with custom prompts</p>
+          </div>
+        </Link>
+
+        <Link
+          href="/gallery"
+          className="card hover:shadow-xl transition-all hover:scale-105 cursor-pointer group"
+        >
+          <div className="text-center space-y-3">
+            <div className="text-5xl group-hover:scale-110 transition-transform">🖼️</div>
+            <h3 className="text-xl font-bold text-amber-600 dark:text-amber-400">Gallery</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Browse all generated media</p>
+          </div>
+        </Link>
+
+        <Link
+          href="/logs"
+          className="card hover:shadow-xl transition-all hover:scale-105 cursor-pointer group"
+        >
+          <div className="text-center space-y-3">
+            <div className="text-5xl group-hover:scale-110 transition-transform">📝</div>
+            <h3 className="text-xl font-bold text-amber-600 dark:text-amber-400">Activity Logs</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Monitor generation progress</p>
+          </div>
         </Link>
       </div>
 

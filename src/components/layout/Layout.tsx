@@ -13,8 +13,11 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="fixed inset-0 pointer-events-none opacity-10 dark:opacity-5">
+      {/* Andy Warhol Banana Pop-Art Background */}
+      <div className="warhol-bg" />
+
+      {/* Additional decorative emoji elements */}
+      <div className="fixed inset-0 pointer-events-none opacity-5 dark:opacity-3">
         {/* You can add background images here: */}
         {/*
         <div
@@ -36,8 +39,8 @@ export default function Layout({ children }: LayoutProps) {
           }}
         />
         */}
-        <div className="absolute top-10 right-10 text-9xl opacity-20 select-none">🍌</div>
-        <div className="absolute bottom-10 left-10 text-9xl opacity-20 select-none">🐕</div>
+        <div className="absolute top-20 right-20 text-9xl select-none">🍌</div>
+        <div className="absolute bottom-20 left-20 text-9xl select-none">🐕</div>
       </div>
 
       <NavBar />

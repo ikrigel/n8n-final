@@ -24,6 +24,8 @@ export default function NavBar() {
 
   const navLinks = [
     { href: '/', label: '🏠 Home' },
+    { href: '/generate/image', label: '🎨 Generate Image' },
+    { href: '/generate/video', label: '🎬 Generate Video' },
     { href: '/gallery', label: '🖼️ Gallery' },
     { href: '/logs', label: '📝 Logs' },
     { href: '/settings', label: '⚙️ Settings' },
