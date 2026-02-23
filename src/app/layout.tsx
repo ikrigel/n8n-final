@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Providers } from '@/components/providers/Providers';
+import { MuiProvider } from '@/components/providers/MuiProvider';
 import Layout from '@/components/layout/Layout';
 import '@/styles/globals.css';
 
@@ -17,7 +18,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <Providers>
-          <Layout>{children}</Layout>
+          <MuiProvider>
+            <Layout>{children}</Layout>
+          </MuiProvider>
         </Providers>
       </body>
     </html>
