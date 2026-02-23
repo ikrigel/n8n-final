@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide walks through setting up Supabase for the N8N SPA Frontend with proper table schemas, Row Level Security (RLS) policies, and Storage configuration.
+This guide walks through setting up Supabase for POLO BANANA with proper table schemas, Row Level Security (RLS) policies, and Storage configuration.
 
 ## Step 1: Create Supabase Project
 

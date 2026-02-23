@@ -1,6 +1,6 @@
 # E2E Tests with Playwright
 
-This directory contains end-to-end tests for the N8N SPA Frontend application using Playwright.
+This directory contains end-to-end tests for POLO BANANA using Playwright.
 
 ## Test Structure
 

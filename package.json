@@ -1,7 +1,7 @@
 {
-  "name": "n8n-spa-frontend",
+  "name": "polo-banana",
   "version": "1.0.0",
-  "description": "Production-ready React SPA for n8n automation workflows",
+  "description": "POLO BANANA - Production-ready single page application frontend",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

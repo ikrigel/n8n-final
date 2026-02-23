@@ -1,6 +1,6 @@
-# N8N SPA Frontend - Production Ready ✅
+# POLO BANANA - Production Ready ✅
 
-A comprehensive Next.js 15 Single Page Application with authentication, database integration, and full test coverage.
+A comprehensive Next.js 15 single page application frontend with authentication, database integration, and full test coverage.
 
 ## 🚀 Quick Start
 

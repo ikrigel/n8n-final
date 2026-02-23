@@ -2,7 +2,7 @@
 
 ## Overview
 
-Deploy the N8N SPA Frontend to Vercel in minutes with automatic CI/CD, domain management, and analytics.
+Deploy POLO BANANA to Vercel in minutes with automatic CI/CD, domain management, and analytics.
 
 ## Prerequisites
 

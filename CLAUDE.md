@@ -1,8 +1,8 @@
-# N8N SPA Frontend - Project Overview
+# POLO BANANA - Project Overview
 
 ## Project Summary
 
-A production-ready Single Page Application (SPA) built with **Next.js 15 + TypeScript** that serves as a frontend for n8n automation workflows. The app enables users to trigger image/video generation, run various utility workflows, manage a gallery, and monitor logs—all via webhook integration with n8n.
+A production-ready single page application frontend built with **Next.js 15 + TypeScript**. The app provides a comprehensive interface for workflow management, media gallery, settings management, and real-time monitoring—all integrated with webhook support.
 
 **Deploy target:** Vercel
 
