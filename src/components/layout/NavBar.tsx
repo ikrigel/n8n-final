@@ -25,6 +25,7 @@ export default function NavBar() {
   const navLinks = [
     { href: '/', label: '🏠 Home' },
     { href: '/gallery', label: '🖼️ Gallery' },
+    { href: '/logs', label: '📝 Logs' },
     { href: '/settings', label: '⚙️ Settings' },
     { href: '/about', label: 'ℹ️ About' },
     { href: '/help', label: '❓ Help' },
