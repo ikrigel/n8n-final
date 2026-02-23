@@ -38,21 +38,22 @@ export default function GenerateImagePage() {
       const newRequestId = uuidv4();
       setRequestId(newRequestId);
 
-      // Send request directly to n8n webhook to get image response
-      const webhookUrl = buildWebhookURL(config.env);
-      const response = await fetch(webhookUrl, {
+      // Send request through Next.js API proxy (avoids CORS issues)
+      const response = await fetch('/api/webhook', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user_id: userId,
+          env: config.env,
+          workflowType: 'image',
+          userId,
           email: userEmail,
-          workflow_type: 'image',
-          request_id: newRequestId,
+          telegramId: undefined,
           message: {
             prompt: prompt.trim(),
           },
+          requestId: newRequestId,
         }),
       });
 
@@ -61,7 +62,7 @@ export default function GenerateImagePage() {
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
-      // Check if response is an image (binary)
+      // Check if response is an image (binary) - directly from n8n via proxy
       const contentType = response.headers.get('content-type');
       if (contentType?.includes('image')) {
         // Convert binary image response to blob and create object URL
@@ -76,11 +77,11 @@ export default function GenerateImagePage() {
         });
         setPrompt(''); // Clear input after success
       } else {
-        // If response is JSON, try to parse error
+        // If response is JSON (from proxy)
         const data = await response.json();
-        if (data.success || data.image) {
-          // Handle JSON response with image data (base64 encoded)
-          setGeneratedImageUrl(data.image || data.data);
+        if (data.success && data.image) {
+          // Handle JSON response with base64 image data from proxy
+          setGeneratedImageUrl(`data:image/png;base64,${data.image}`);
           await logInfo('Image generated successfully', { requestId: newRequestId, prompt });
           setMessage({
             type: 'success',
