@@ -149,19 +149,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Handle empty responses (e.g., async workflows that queue tasks)
+    const contentLength = response.headers.get('content-length');
+    if (contentLength === '0') {
+      console.log('🟢 [WEBHOOK] n8n queued response (empty body, async processing)');
+      return NextResponse.json(
+        {
+          success: true,
+          requestId,
+          queued: true,
+          message: 'Request queued for processing',
+        },
+        { status: 200 }
+      );
+    }
+
     // Return the JSON response from n8n
-    const data = await response.json();
-    console.log('🟢 [WEBHOOK] n8n success response:');
-    console.log('  - Data type:', typeof data);
-    console.log('  - Data:', JSON.stringify(data, null, 2));
-    return NextResponse.json(
-      {
-        success: true,
-        requestId,
-        data,
-      },
-      { status: 200 }
-    );
+    try {
+      const data = await response.json();
+      console.log('🟢 [WEBHOOK] n8n success response:');
+      console.log('  - Data type:', typeof data);
+      console.log('  - Data:', JSON.stringify(data, null, 2));
+      return NextResponse.json(
+        {
+          success: true,
+          requestId,
+          data,
+        },
+        { status: 200 }
+      );
+    } catch (parseErr) {
+      console.error('🔴 [WEBHOOK] Failed to parse n8n JSON response:', parseErr);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to parse n8n response',
+          requestId,
+        },
+        { status: 500 }
+      );
+    }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : '';

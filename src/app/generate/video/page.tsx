@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useLogger } from '@/hooks/useLogger';
 import { useAuth } from '@/contexts/AuthContext';
 import { sendWebhookRequest } from '@/lib/webhooks';
 import { v4 as uuidv4 } from 'uuid';
+
+const STORAGE_KEY = 'polo-banana-video-prompt';
 
 /**
  * Video Generation Page
@@ -21,6 +23,23 @@ export default function GenerateVideoPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
   const [requestId, setRequestId] = useState<string | null>(null);
+
+  // Load prompt from localStorage on mount
+  useEffect(() => {
+    const savedPrompt = localStorage.getItem(STORAGE_KEY);
+    if (savedPrompt) {
+      setPrompt(savedPrompt);
+    }
+  }, []);
+
+  // Save prompt to localStorage whenever it changes
+  useEffect(() => {
+    if (prompt) {
+      localStorage.setItem(STORAGE_KEY, prompt);
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, [prompt]);
 
   const handleGenerateVideo = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +71,7 @@ export default function GenerateVideoPage() {
           text: `✅ Video generation started! Request ID: ${newRequestId.substring(0, 8)}...`,
         });
         setPrompt(''); // Clear input after success
+        localStorage.removeItem(STORAGE_KEY); // Clear saved prompt
       } else {
         await logError('Video generation failed', { error: result.error });
         setMessage({ type: 'error', text: `❌ Error: ${result.error || 'Unknown error'}` });

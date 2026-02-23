@@ -7,6 +7,7 @@ import { useConfig } from '@/contexts/ConfigContext';
 import { useLogger } from '@/hooks/useLogger';
 import { useAuth } from '@/contexts/AuthContext';
 import { buildWebhookURL } from '@/lib/webhooks';
+import { uploadGeneratedImage, loadGalleryIndex } from '@/lib/gallery';
 import { v4 as uuidv4 } from 'uuid';
 
 const STORAGE_KEY = 'polo-banana-image-prompt';
@@ -25,13 +26,18 @@ export default function GenerateImagePage() {
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
   const [requestId, setRequestId] = useState<string | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [savedToGallery, setSavedToGallery] = useState(false);
+  const [galleryItems, setGalleryItems] = useState<any[]>([]);
 
-  // Load prompt from localStorage on mount
+  // Load prompt and gallery items on mount
   useEffect(() => {
     const savedPrompt = localStorage.getItem(STORAGE_KEY);
     if (savedPrompt) {
       setPrompt(savedPrompt);
     }
+    // Load gallery items from localStorage
+    const items = loadGalleryIndex();
+    setGalleryItems(items);
   }, []);
 
   // Save prompt to localStorage whenever it changes
@@ -103,6 +109,43 @@ export default function GenerateImagePage() {
         const imageUrl = URL.createObjectURL(blob);
         setGeneratedImageUrl(imageUrl);
 
+        // Save to Supabase Storage and gallery
+        const fileName = `polo-banana-${newRequestId.substring(0, 8)}.png`;
+        console.log('💾 Starting Supabase upload:', {
+          fileName,
+          blobSize: blob.size,
+          blobType: blob.type,
+          userEmail,
+          env: config.env,
+        });
+
+        const uploadResult = await uploadGeneratedImage(
+          blob,
+          fileName,
+          userEmail,
+          config.env as 'test' | 'production',
+          newRequestId,
+          prompt.trim()
+        );
+
+        if (uploadResult.success) {
+          console.log('✅ Image saved to gallery');
+          setSavedToGallery(true);
+          // Reload gallery items
+          const items = loadGalleryIndex();
+          setGalleryItems(items);
+          setMessage({
+            type: 'success',
+            text: `✅ Image saved to gallery and Supabase Storage!`,
+          });
+        } else {
+          console.warn('⚠️ Failed to save to gallery:', uploadResult.error);
+          setMessage({
+            type: 'error',
+            text: `⚠️ Image generated but failed to save: ${uploadResult.error}`,
+          });
+        }
+
         await logInfo('Image generated successfully', { requestId: newRequestId, prompt });
         setMessage({
           type: 'success',
@@ -117,7 +160,42 @@ export default function GenerateImagePage() {
 
         if (data.success && data.image) {
           // Handle JSON response with base64 image data from proxy
-          setGeneratedImageUrl(`data:image/png;base64,${data.image}`);
+          const dataUrl = `data:image/png;base64,${data.image}`;
+          setGeneratedImageUrl(dataUrl);
+
+          // Convert base64 to blob for Supabase storage
+          try {
+            const binaryString = atob(data.image);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+            const blob = new Blob([bytes], { type: 'image/png' });
+
+            // Save to Supabase Storage and gallery
+            const fileName = `polo-banana-${newRequestId.substring(0, 8)}.png`;
+            const uploadResult = await uploadGeneratedImage(
+              blob,
+              fileName,
+              userEmail,
+              config.env as 'test' | 'production',
+              newRequestId,
+              prompt.trim()
+            );
+
+            if (uploadResult.success) {
+              console.log('✅ Image saved to gallery');
+              setSavedToGallery(true);
+              // Reload gallery items
+              const items = loadGalleryIndex();
+              setGalleryItems(items);
+            } else {
+              console.warn('⚠️ Failed to save to gallery:', uploadResult.error);
+            }
+          } catch (err) {
+            console.warn('⚠️ Failed to convert and save base64 image:', err);
+          }
+
           await logInfo('Image generated successfully', { requestId: newRequestId, prompt });
           setMessage({
             type: 'success',
@@ -250,7 +328,7 @@ export default function GenerateImagePage() {
                 className="w-full h-full object-contain"
               />
             </div>
-            <div className="mt-6 flex gap-4 justify-center">
+            <div className="mt-6 flex gap-4 justify-center flex-wrap">
               <a
                 href={generatedImageUrl}
                 download={`polo-banana-${requestId?.substring(0, 8)}.png`}
@@ -258,12 +336,21 @@ export default function GenerateImagePage() {
               >
                 ⬇️ Download Image
               </a>
+              {savedToGallery && (
+                <a
+                  href={`/gallery`}
+                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-colors"
+                >
+                  📸 View in Gallery
+                </a>
+              )}
               <button
                 onClick={() => {
                   URL.revokeObjectURL(generatedImageUrl);
                   setGeneratedImageUrl(null);
                   setPrompt('');
                   setRequestId(null);
+                  setSavedToGallery(false);
                 }}
                 className="px-6 py-3 bg-gray-400 hover:bg-gray-500 text-white font-bold rounded-lg transition-colors"
               >
@@ -285,6 +372,55 @@ export default function GenerateImagePage() {
             <p className="text-xs text-blue-700 dark:text-blue-400 mt-2">
               Check the <Link href="/logs" className="underline font-bold hover:text-blue-900">Logs page</Link> to see your request status.
             </p>
+          </div>
+        )}
+
+        {/* Recently Generated Images */}
+        {galleryItems.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold text-amber-700 dark:text-amber-300 mb-6">
+              📸 Recently Generated ({galleryItems.length})
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {galleryItems.slice(0, 6).map((item) => (
+                <div
+                  key={item.id}
+                  className="group relative bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+                >
+                  <a href={item.publicUrl} target="_blank" rel="noopener noreferrer">
+                    <img
+                      src={item.publicUrl}
+                      alt={item.prompt}
+                      className="w-full h-40 object-cover group-hover:opacity-75 transition-opacity"
+                    />
+                  </a>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-end opacity-0 group-hover:opacity-100">
+                    <div className="w-full p-3 text-white text-xs bg-gradient-to-t from-black/80 to-transparent">
+                      <p className="font-semibold truncate">{item.prompt.substring(0, 30)}</p>
+                      <p className="text-xs text-gray-300">
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href={`/gallery?filter=${item.id}`}
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-amber-600 hover:bg-amber-700 text-white p-2 rounded-lg text-xs font-bold transition-all"
+                  >
+                    👁️ View
+                  </Link>
+                </div>
+              ))}
+            </div>
+            {galleryItems.length > 6 && (
+              <div className="mt-6 text-center">
+                <Link
+                  href="/gallery"
+                  className="inline-block px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg transition-colors"
+                >
+                  View All Images in Gallery →
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>
