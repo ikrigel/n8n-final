@@ -4,8 +4,8 @@ import Layout from '@/components/layout/Layout';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
-  title: 'N8N SPA - Image & Video Generator',
-  description: 'Frontend for n8n automation workflows',
+  title: 'POLO BANANA - Production Ready App',
+  description: 'A comprehensive single page application with authentication and full features',
 };
 
 export default function RootLayout({

@@ -98,11 +98,11 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">N8N Media Generator</h1>
+        <h1 className="text-4xl font-bold mb-4">POLO BANANA</h1>
         <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Generate stunning images and videos powered by AI. Configure your
-          preferences in Settings, monitor progress in Logs, and manage your
-          creations in the Gallery.
+          A production-ready single page application. Configure your
+          preferences in Settings, monitor activity in Logs, and manage your
+          data in the Gallery.
         </p>
       </div>
 

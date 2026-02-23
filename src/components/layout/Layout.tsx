@@ -19,7 +19,7 @@ export default function Layout({ children }: LayoutProps) {
       </main>
       <footer className="border-t border-gray-200 dark:border-gray-700 mt-12 py-6">
         <div className="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>&copy; 2026 N8N SPA Frontend. All rights reserved.</p>
+          <p>&copy; 2026 POLO BANANA. All rights reserved.</p>
         </div>
       </footer>
     </div>

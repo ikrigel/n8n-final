@@ -36,7 +36,7 @@ export default function NavBar() {
         <div className="flex items-center justify-between">
           {/* Logo / Brand */}
           <Link href="/" className="font-bold text-xl">
-            N8N SPA
+            POLO BANANA
           </Link>
 
           {/* Desktop Navigation */}

@@ -25,7 +25,7 @@ export default function SignInPage() {
         <div className="card space-y-6">
           {/* Logo / Title */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold mb-2">N8N SPA</h1>
+            <h1 className="text-3xl font-bold mb-2">POLO BANANA</h1>
             <p className="text-gray-600 dark:text-gray-400">
               Sign in to your account
             </p>
