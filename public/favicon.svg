@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Banana -->
+  <defs>
+    <linearGradient id="bananaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Banana shape -->
+  <path d="M 20 70 Q 40 20, 80 15 Q 85 15, 85 20 Q 45 25, 25 75 Q 20 78, 15 75 Z" fill="url(#bananaGradient)" stroke="#D4AF37" stroke-width="2"/>
+  <!-- Banana shine -->
+  <ellipse cx="50" cy="40" rx="15" ry="8" fill="#FFEB3B" opacity="0.6"/>
+</svg>

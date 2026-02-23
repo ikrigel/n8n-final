@@ -7,6 +7,9 @@ import '@/styles/globals.css';
 export const metadata: Metadata = {
   title: 'POLO BANANA - Production Ready App',
   description: 'A comprehensive single page application with authentication and full features',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

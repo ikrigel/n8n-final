@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useConfig } from '@/contexts/ConfigContext';
 import { useLogger } from '@/hooks/useLogger';
 import { useAuth } from '@/contexts/AuthContext';
-import { sendWebhookRequest } from '@/lib/webhooks';
+import { buildWebhookURL } from '@/lib/webhooks';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -21,6 +22,7 @@ export default function GenerateImagePage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
   const [requestId, setRequestId] = useState<string | null>(null);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
 
   const handleGenerateImage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,30 +33,63 @@ export default function GenerateImagePage() {
     }
 
     setLoading(true);
+    setGeneratedImageUrl(null);
     try {
       const newRequestId = uuidv4();
       setRequestId(newRequestId);
 
-      const result = await sendWebhookRequest(
-        config.env,
-        'image',
-        userId,
-        userEmail,
-        undefined,
-        { prompt: prompt.trim() },
-        newRequestId
-      );
+      // Send request directly to n8n webhook to get image response
+      const webhookUrl = buildWebhookURL(config.env);
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          email: userEmail,
+          workflow_type: 'image',
+          request_id: newRequestId,
+          message: {
+            prompt: prompt.trim(),
+          },
+        }),
+      });
 
-      if (result.success) {
-        await logInfo('Image generation started', { requestId: newRequestId, prompt });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
+      // Check if response is an image (binary)
+      const contentType = response.headers.get('content-type');
+      if (contentType?.includes('image')) {
+        // Convert binary image response to blob and create object URL
+        const blob = await response.blob();
+        const imageUrl = URL.createObjectURL(blob);
+        setGeneratedImageUrl(imageUrl);
+
+        await logInfo('Image generated successfully', { requestId: newRequestId, prompt });
         setMessage({
           type: 'success',
-          text: `✅ Image generation started! Request ID: ${newRequestId.substring(0, 8)}...`,
+          text: `✅ Image generated successfully!`,
         });
         setPrompt(''); // Clear input after success
       } else {
-        await logError('Image generation failed', { error: result.error });
-        setMessage({ type: 'error', text: `❌ Error: ${result.error || 'Unknown error'}` });
+        // If response is JSON, try to parse error
+        const data = await response.json();
+        if (data.success || data.image) {
+          // Handle JSON response with image data (base64 encoded)
+          setGeneratedImageUrl(data.image || data.data);
+          await logInfo('Image generated successfully', { requestId: newRequestId, prompt });
+          setMessage({
+            type: 'success',
+            text: `✅ Image generated successfully!`,
+          });
+          setPrompt('');
+        } else {
+          throw new Error(data.error || 'Image generation failed');
+        }
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Unknown error';
@@ -62,8 +97,12 @@ export default function GenerateImagePage() {
       setMessage({ type: 'error', text: `❌ Error: ${errorMsg}` });
     } finally {
       setLoading(false);
-      // Clear message after 6 seconds
-      setTimeout(() => setMessage(null), 6000);
+      // Clear message after 6 seconds (unless it's an error)
+      setTimeout(() => {
+        if (message?.type !== 'error') {
+          setMessage(null);
+        }
+      }, 6000);
     }
   };
 
@@ -157,8 +196,44 @@ export default function GenerateImagePage() {
           </div>
         </div>
 
+        {/* Generated Image Display */}
+        {generatedImageUrl && (
+          <div className="mt-12 p-8 bg-gradient-to-b from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl">
+            <h3 className="text-2xl font-bold text-amber-700 dark:text-amber-300 mb-6 text-center">
+              🎨 Your Generated Image
+            </h3>
+            <div className="relative w-full aspect-square max-h-[600px] mx-auto rounded-lg overflow-hidden shadow-2xl bg-gray-200 dark:bg-gray-800">
+              <img
+                src={generatedImageUrl}
+                alt="Generated image"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="mt-6 flex gap-4 justify-center">
+              <a
+                href={generatedImageUrl}
+                download={`polo-banana-${requestId?.substring(0, 8)}.png`}
+                className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg transition-colors"
+              >
+                ⬇️ Download Image
+              </a>
+              <button
+                onClick={() => {
+                  URL.revokeObjectURL(generatedImageUrl);
+                  setGeneratedImageUrl(null);
+                  setPrompt('');
+                  setRequestId(null);
+                }}
+                className="px-6 py-3 bg-gray-400 hover:bg-gray-500 text-white font-bold rounded-lg transition-colors"
+              >
+                🔄 Generate Another
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Request Status */}
-        {requestId && (
+        {requestId && !generatedImageUrl && (
           <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
             <p className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">
               📊 Request Status
