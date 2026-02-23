@@ -37,12 +37,15 @@ export async function POST(request: NextRequest) {
     console.log('Webhook proxy forwarding to:', webhookUrl, 'with env:', env);
 
     // Build request payload, filtering out undefined values
+    // Transform message to nested structure expected by n8n Set node
     const payload: Record<string, any> = {
       workflow_type: workflowType,
       user_id: userId,
       email,
       request_id: requestId,
-      message,
+      message: {
+        prompt: message,  // n8n Set node expects message.prompt
+      },
     };
 
     // Only include telegram_id if it's defined
