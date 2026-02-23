@@ -19,15 +19,26 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 px-4">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="fixed inset-0 pointer-events-none opacity-10 dark:opacity-5">
+        <div className="absolute top-20 right-10 text-9xl select-none">🍌</div>
+        <div className="absolute bottom-20 left-10 text-9xl select-none">🐕</div>
+      </div>
+
+      <div className="max-w-md w-full relative z-10">
         {/* Card */}
-        <div className="card space-y-6">
+        <div className="card space-y-6 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-2xl">
           {/* Logo / Title */}
-          <div className="text-center">
-            <h1 className="text-3xl font-bold mb-2">POLO BANANA</h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Sign in to your account
+          <div className="text-center space-y-3">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 bg-clip-text text-transparent">
+              🍌 POLO BANANA
+            </h1>
+            <p className="text-lg text-gray-700 dark:text-gray-300 font-medium">
+              Welcome back!
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Sign in to access your creative workspace
             </p>
           </div>
 
@@ -57,30 +68,47 @@ export default function SignInPage() {
           <div className="text-center text-sm text-gray-600 dark:text-gray-400">
             <p>
               Don't have an account?{' '}
-              <span className="text-blue-600 dark:text-blue-400">
+              <span className="text-amber-600 dark:text-amber-400 font-semibold">
                 One will be created for you on first sign-in
               </span>
             </p>
           </div>
 
           {/* Features List */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 font-semibold">
-              After signing in, you can:
+          <div className="border-t-2 border-amber-200 dark:border-amber-900/40 pt-6">
+            <p className="text-xs text-amber-700 dark:text-amber-300 mb-4 font-bold uppercase tracking-wide">
+              🎯 After signing in, you can:
             </p>
-            <ul className="space-y-2 text-xs text-gray-600 dark:text-gray-400">
-              <li>✓ Generate images and videos</li>
-              <li>✓ Manage your media gallery</li>
-              <li>✓ Configure logging & webhooks</li>
-              <li>✓ Access all features</li>
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
+                <span className="text-lg">🎨</span>
+                <span>Generate stunning images and videos</span>
+              </li>
+              <li className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
+                <span className="text-lg">🖼️</span>
+                <span>Manage your media gallery</span>
+              </li>
+              <li className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
+                <span className="text-lg">⚙️</span>
+                <span>Configure logging & webhooks</span>
+              </li>
+              <li className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
+                <span className="text-lg">🔒</span>
+                <span>Access all features securely</span>
+              </li>
             </ul>
           </div>
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-6">
-          Your data is secure and only used for authentication
-        </p>
+        <div className="text-center space-y-2 mt-8">
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            🔐 Your data is secure and only used for authentication
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-500">
+            &copy; 2026 POLO BANANA. Powered by Next.js + Vercel
+          </p>
+        </div>
       </div>
     </div>
   );
