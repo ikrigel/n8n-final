@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useConfig } from '@/contexts/ConfigContext';
@@ -8,6 +8,8 @@ import { useLogger } from '@/hooks/useLogger';
 import { useAuth } from '@/contexts/AuthContext';
 import { buildWebhookURL } from '@/lib/webhooks';
 import { v4 as uuidv4 } from 'uuid';
+
+const STORAGE_KEY = 'polo-banana-image-prompt';
 
 /**
  * Image Generation Page
@@ -23,6 +25,23 @@ export default function GenerateImagePage() {
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
   const [requestId, setRequestId] = useState<string | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+
+  // Load prompt from localStorage on mount
+  useEffect(() => {
+    const savedPrompt = localStorage.getItem(STORAGE_KEY);
+    if (savedPrompt) {
+      setPrompt(savedPrompt);
+    }
+  }, []);
+
+  // Save prompt to localStorage whenever it changes
+  useEffect(() => {
+    if (prompt) {
+      localStorage.setItem(STORAGE_KEY, prompt);
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, [prompt]);
 
   const handleGenerateImage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +95,7 @@ export default function GenerateImagePage() {
           text: `✅ Image generated successfully!`,
         });
         setPrompt(''); // Clear input after success
+        localStorage.removeItem(STORAGE_KEY); // Clear saved prompt
       } else {
         // If response is JSON (from proxy)
         const data = await response.json();
@@ -88,6 +108,7 @@ export default function GenerateImagePage() {
             text: `✅ Image generated successfully!`,
           });
           setPrompt('');
+          localStorage.removeItem(STORAGE_KEY); // Clear saved prompt
         } else {
           throw new Error(data.error || 'Image generation failed');
         }
