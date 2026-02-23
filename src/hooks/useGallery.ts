@@ -82,9 +82,11 @@ export function useGallery() {
     return filtered;
   }, [items]);
 
-  // Get recent items (last N)
+  // Get recent items (last N, sorted by created_at descending)
   const getRecentItems = useCallback((count: number = 5): GalleryItem[] => {
-    return items.slice(0, count);
+    return [...items].sort((a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    ).slice(0, count);
   }, [items]);
 
   // Get statistics
