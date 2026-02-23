@@ -12,21 +12,36 @@ const WEBHOOK_URLS = {
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔵 [WEBHOOK] Request received at', new Date().toISOString());
+
     const body = await request.json();
+    console.log('🔵 [WEBHOOK] Raw body received:', JSON.stringify(body, null, 2));
+
     const { env = 'production', workflowType, userId, email, telegramId, message, requestId } = body;
+
+    console.log('🔵 [WEBHOOK] Extracted fields:');
+    console.log('  - workflowType:', workflowType);
+    console.log('  - userId:', userId);
+    console.log('  - email:', email);
+    console.log('  - message:', message);
+    console.log('  - telegramId:', telegramId);
+    console.log('  - requestId:', requestId);
+    console.log('  - env:', env);
 
     // Validate required fields
     if (!workflowType || !userId || !email || !message) {
-      console.warn('Webhook proxy: Missing required fields', {
+      console.error('🔴 [WEBHOOK] Missing required fields!', {
         hasWorkflowType: !!workflowType,
         hasUserId: !!userId,
         hasEmail: !!email,
-        hasMessage: !!message
+        hasMessage: !!message,
+        receivedKeys: Object.keys(body)
       });
       return NextResponse.json(
         {
           success: false,
           error: 'Missing required fields: workflowType, userId, email, message',
+          received: Object.keys(body)
         },
         { status: 400 }
       );
@@ -34,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     // Select webhook URL based on environment
     const webhookUrl = WEBHOOK_URLS[env as keyof typeof WEBHOOK_URLS] || WEBHOOK_URLS.production;
-    console.log('Webhook proxy forwarding to:', webhookUrl, 'with env:', env);
+    console.log('🔵 [WEBHOOK] Using URL:', webhookUrl, 'for env:', env);
 
     // Build request payload, filtering out undefined values
     // Transform message to nested structure expected by n8n Set node
@@ -53,9 +68,18 @@ export async function POST(request: NextRequest) {
       payload.telegram_id = telegramId;
     }
 
-    console.log('Sending to n8n:', JSON.stringify(payload, null, 2));
+    console.log('🔵 [WEBHOOK] Transformed payload to send to n8n:');
+    console.log(JSON.stringify(payload, null, 2));
+    console.log('🔵 [WEBHOOK] Payload type check:');
+    console.log('  - typeof payload:', typeof payload);
+    console.log('  - JSON.stringify works:', !!JSON.stringify(payload));
+    console.log('  - payload.message:', payload.message);
+    console.log('  - payload.message.prompt:', payload.message?.prompt);
 
     // Forward the request to n8n
+    console.log('🟡 [WEBHOOK] Sending to n8n...');
+    const sendTime = Date.now();
+
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
@@ -64,7 +88,14 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(payload),
     });
 
-    console.log('n8n response status:', response.status, 'content-type:', response.headers.get('content-type'));
+    const responseTime = Date.now() - sendTime;
+    console.log('🟡 [WEBHOOK] n8n response received in', responseTime, 'ms');
+    console.log('🟡 [WEBHOOK] Status:', response.status);
+    console.log('🟡 [WEBHOOK] Headers:', {
+      contentType: response.headers.get('content-type'),
+      contentLength: response.headers.get('content-length'),
+      allHeaders: Array.from(response.headers.entries())
+    });
 
     // Check if n8n returned a binary response (image)
     const contentType = response.headers.get('content-type');
@@ -72,7 +103,7 @@ export async function POST(request: NextRequest) {
     if (contentType?.includes('image')) {
       // If it's an image, return it as-is
       const blob = await response.arrayBuffer();
-      console.log('Returning image response, size:', blob.byteLength);
+      console.log('🟢 [WEBHOOK] Returning image response, size:', blob.byteLength, 'bytes');
       return new NextResponse(blob, {
         status: response.status,
         headers: {
@@ -84,11 +115,23 @@ export async function POST(request: NextRequest) {
     // Otherwise, try to parse as JSON
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('n8n error response:', response.status, errorText);
+      console.error('🔴 [WEBHOOK] n8n error response:');
+      console.error('  - Status:', response.status);
+      console.error('  - Content-Type:', contentType);
+      console.error('  - Body:', errorText);
+      console.error('  - Parsed attempt:', (() => {
+        try {
+          return JSON.parse(errorText);
+        } catch {
+          return 'Could not parse as JSON';
+        }
+      })());
       return NextResponse.json(
         {
           success: false,
-          error: `n8n workflow error: HTTP ${response.status} - ${errorText}`,
+          error: `n8n workflow error: HTTP ${response.status}`,
+          details: errorText,
+          requestPayload: payload
         },
         { status: response.status }
       );
@@ -96,7 +139,9 @@ export async function POST(request: NextRequest) {
 
     // Return the JSON response from n8n
     const data = await response.json();
-    console.log('n8n success response:', data);
+    console.log('🟢 [WEBHOOK] n8n success response:');
+    console.log('  - Data type:', typeof data);
+    console.log('  - Data:', JSON.stringify(data, null, 2));
     return NextResponse.json(
       {
         success: true,
@@ -108,12 +153,18 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : '';
-    console.error('Webhook proxy error:', errorMessage);
-    if (errorStack) console.error('Stack:', errorStack);
+    console.error('🔴 [WEBHOOK] Proxy error:');
+    console.error('  - Message:', errorMessage);
+    console.error('  - Type:', error instanceof Error ? error.constructor.name : typeof error);
+    if (errorStack) {
+      console.error('  - Stack:');
+      errorStack.split('\n').forEach(line => console.error('    ', line));
+    }
     return NextResponse.json(
       {
         success: false,
         error: errorMessage,
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
       },
       { status: 500 }
     );
