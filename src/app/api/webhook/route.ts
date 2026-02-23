@@ -52,15 +52,29 @@ export async function POST(request: NextRequest) {
     console.log('🔵 [WEBHOOK] Using URL:', webhookUrl, 'for env:', env);
 
     // Build request payload, filtering out undefined values
-    // Transform message to nested structure expected by n8n Set node
+    // Handle both cases: message as string OR as nested object { prompt: "..." }
+    let messagePayload: any;
+
+    if (typeof message === 'string') {
+      // If message is a string, nest it
+      messagePayload = { prompt: message };
+      console.log('🔵 [WEBHOOK] Message was string, nested to object');
+    } else if (typeof message === 'object' && message !== null && 'prompt' in message) {
+      // If message is already { prompt: "..." }, use as-is
+      messagePayload = message;
+      console.log('🔵 [WEBHOOK] Message already nested, using as-is');
+    } else {
+      // Fallback: treat entire message as prompt
+      messagePayload = { prompt: JSON.stringify(message) };
+      console.log('🔵 [WEBHOOK] Message was complex object, stringified');
+    }
+
     const payload: Record<string, any> = {
       workflow_type: workflowType,
       user_id: userId,
       email,
       request_id: requestId,
-      message: {
-        prompt: message,  // n8n Set node expects message.prompt
-      },
+      message: messagePayload,  // Use the correctly formatted message
     };
 
     // Only include telegram_id if it's defined
