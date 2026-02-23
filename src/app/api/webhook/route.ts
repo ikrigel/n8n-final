@@ -69,18 +69,16 @@ export async function POST(request: NextRequest) {
       console.log('🔵 [WEBHOOK] Message was complex object, stringified');
     }
 
+    // Build payload in the EXACT same format as the original working version
     const payload: Record<string, any> = {
-      workflow_type: workflowType,
+      request_id: requestId,
       user_id: userId,
       email,
-      request_id: requestId,
+      telegram_id: telegramId || null,
+      workflow_type: workflowType,
+      timestamp: new Date().toISOString(),
       message: messagePayload,  // Use the correctly formatted message
     };
-
-    // Only include telegram_id if it's defined
-    if (telegramId !== undefined && telegramId !== null) {
-      payload.telegram_id = telegramId;
-    }
 
     console.log('🔵 [WEBHOOK] Transformed payload to send to n8n:');
     console.log(JSON.stringify(payload, null, 2));
