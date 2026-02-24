@@ -8,6 +8,8 @@ const DEFAULT_CONFIG: AppConfig = {
   logLevel: 'info',
   sendLogsAsJson: false,
   theme: 'auto',
+  sidebarPosition: 'left',
+  sidebarCollapsed: false,
 };
 
 /**
