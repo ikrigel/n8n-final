@@ -125,11 +125,11 @@ export default function GenerateVideoPage() {
         )}
 
         {/* Form */}
-        <div className="card space-y-6">
-          <form onSubmit={handleGenerateVideo} className="space-y-6">
+        <div className="card space-y-8">
+          <form onSubmit={handleGenerateVideo} className="space-y-8">
             {/* Prompt Input */}
             <div>
-              <label htmlFor="prompt" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+              <label htmlFor="prompt" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-6 uppercase tracking-wide">
                 ✍️ Describe Your Video
               </label>
               <textarea
@@ -137,7 +137,8 @@ export default function GenerateVideoPage() {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="E.g., A smooth camera pan across a futuristic cityscape at night with neon lights, slow motion, cinematic quality..."
-                className="input-field h-32 resize-none"
+                className="input-field min-h-[8rem] max-h-[24rem] resize-y"
+                rows={4}
                 disabled={loading}
               />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">

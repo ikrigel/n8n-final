@@ -28,6 +28,7 @@ export default function GenerateImagePage() {
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [savedToGallery, setSavedToGallery] = useState(false);
   const [galleryItems, setGalleryItems] = useState<any[]>([]);
+  const [previewSize, setPreviewSize] = useState<'sm' | 'md' | 'lg'>('md');
 
   // Load prompt and gallery items on mount
   useEffect(() => {
@@ -263,11 +264,11 @@ export default function GenerateImagePage() {
         )}
 
         {/* Form */}
-        <div className="card space-y-6">
-          <form onSubmit={handleGenerateImage} className="space-y-6">
+        <div className="card space-y-8">
+          <form onSubmit={handleGenerateImage} className="space-y-8">
             {/* Prompt Input */}
             <div>
-              <label htmlFor="prompt" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+              <label htmlFor="prompt" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-6 uppercase tracking-wide">
                 ✍️ Describe Your Image
               </label>
               <textarea
@@ -275,7 +276,8 @@ export default function GenerateImagePage() {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="E.g., A serene landscape with mountains at sunset, vibrant colors, oil painting style..."
-                className="input-field h-32 resize-none"
+                className="input-field min-h-[8rem] max-h-[24rem] resize-y"
+                rows={4}
                 disabled={loading}
               />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
@@ -318,10 +320,29 @@ export default function GenerateImagePage() {
         {/* Generated Image Display */}
         {generatedImageUrl && (
           <div className="mt-12 p-8 bg-gradient-to-b from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl">
-            <h3 className="text-2xl font-bold text-amber-700 dark:text-amber-300 mb-6 text-center">
-              🎨 Your Generated Image
-            </h3>
-            <div className="relative w-full aspect-square max-h-[600px] mx-auto rounded-lg overflow-hidden shadow-2xl bg-gray-200 dark:bg-gray-800">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+                🎨 Your Generated Image
+              </h3>
+              <div className="flex gap-2">
+                {['sm', 'md', 'lg'].map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setPreviewSize(size as 'sm' | 'md' | 'lg')}
+                    className={`px-3 py-1.5 text-sm font-semibold rounded-lg transition-all ${
+                      previewSize === size
+                        ? 'bg-amber-600 text-white'
+                        : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/50'
+                    }`}
+                  >
+                    {size === 'sm' ? 'S' : size === 'md' ? 'M' : 'L'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className={`relative w-full aspect-square mx-auto rounded-lg overflow-hidden shadow-2xl bg-gray-200 dark:bg-gray-800 ${
+              previewSize === 'sm' ? 'max-h-[300px]' : previewSize === 'md' ? 'max-h-[500px]' : 'max-h-[800px]'
+            }`}>
               <img
                 src={generatedImageUrl}
                 alt="Generated image"

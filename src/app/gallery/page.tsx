@@ -32,6 +32,7 @@ export default function GalleryPage() {
   const [mediaType, setMediaType] = useState<MediaType>('all');
   const [environment, setEnvironment] = useState<EnvType>('all');
   const [searchText, setSearchText] = useState('');
+  const [viewSize, setViewSize] = useState<'compact' | 'normal' | 'large'>('normal');
 
   // Load gallery on mount
   useEffect(() => {
@@ -262,13 +263,36 @@ export default function GalleryPage() {
             )}
           </div>
         ) : (
-          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Gallery ({filteredItems.length})</h2>
+              <div className="flex gap-2">
+                {['compact', 'normal', 'large'].map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setViewSize(size as 'compact' | 'normal' | 'large')}
+                    className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
+                      viewSize === size
+                        ? 'bg-amber-600 text-white'
+                        : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/50'
+                    }`}
+                  >
+                    {size === 'compact' ? '⚙️ Compact' : size === 'normal' ? '📐 Normal' : '🖼️ Large'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className={`grid ${
+              viewSize === 'compact' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6' :
+              viewSize === 'normal' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5' :
+              'grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3'
+            } gap-4`}>
             {filteredItems.map((item) => (
               <div
                 key={item.id}
                 className="group relative bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700"
               >
-                <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                <div className="relative aspect-[4/3] bg-gray-100 dark:bg-gray-700 overflow-hidden">
                   <a
                     href={item.publicUrl}
                     target="_blank"
@@ -328,7 +352,8 @@ export default function GalleryPage() {
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+          </>
         )}
 
         {selectedItemId && (
@@ -339,7 +364,7 @@ export default function GalleryPage() {
                   const item = filteredItems.find((i) => i.id === selectedItemId)!;
                   return (
                     <div>
-                      <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                      <div className="relative aspect-[4/3] bg-gray-100 dark:bg-gray-700 overflow-hidden">
                         <img
                           src={item.publicUrl}
                           alt={item.prompt}

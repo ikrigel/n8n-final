@@ -49,22 +49,34 @@ npm run start
 - Configuration summary
 
 ### Gallery
-- Media grid with responsive design
+- Responsive media grid (mobile-first: 1 → 5+ columns)
+- View size toggle (Compact/Normal/Large layouts)
 - Advanced filtering (type, environment, date, search)
-- Item preview modal
-- Download functionality
+- Item preview modal with full details
+- Download, copy URL, and Google Drive save options
+- 4:3 aspect ratio for natural image display
+
+### Image & Video Generation
+- Expandable prompt textareas (resize-y enabled)
+- Enhanced spacing for better UX
+- Variable preview sizes (Small/Medium/Large)
+- Real-time generation status tracking
+- Auto-save to Supabase Storage + localStorage
 
 ### Settings
 - Environment selector (test/production)
 - Webhook URL management
 - Log level configuration
 - Real-time webhook testing
+- (Upcoming) Dashboard position selector
 
 ### Theme System
 - Light/Dark/Auto mode switching
 - Persistent theme preference
 - Smooth transitions
 - CSS variables for theming
+- Pop-art banana background imagery
+- (Upcoming) Time-based dynamic theme
 
 ### Responsive Design
 - Mobile-first approach
@@ -357,6 +369,23 @@ lsof -ti:3000 | xargs kill -9
 netstat -ano | findstr :3000
 taskkill /PID <PID> /F
 ```
+
+## 🎨 Recent UI/UX Improvements (Feb 2026)
+
+### Completed
+✅ Background image integration (polo-banana pop-art theme)
+✅ Enhanced image/video generation pages (expanded textareas, better spacing)
+✅ Variable preview sizes (S/M/L) for generated images
+✅ Responsive gallery grid (1 → 5+ columns based on viewport)
+✅ Gallery view size toggle (Compact/Normal/Large layouts)
+✅ Improved aspect ratio (4:3) for gallery images
+
+### In Progress
+⏳ Dashboard collapse/pin functionality
+⏳ Dashboard position selector (left/right/top/bottom)
+⏳ Time-based dynamic theme (auto-brightness adjustment)
+
+See [CLAUDE.md](CLAUDE.md) for detailed architecture and implementation notes.
 
 ## 📝 License
 

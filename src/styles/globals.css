@@ -126,11 +126,9 @@ html.dark body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background:
-    linear-gradient(90deg, #FFE135 0%, #FFE135 25%, #FF6B9D 25%, #FF6B9D 50%, #90EE90 50%, #90EE90 75%, #FF8C00 75%, #FF8C00 100%),
-    linear-gradient(180deg, #FFE135 0%, #FFE135 25%, #FF6B9D 25%, #FF6B9D 50%, #90EE90 50%, #90EE90 75%, #FF8C00 75%, #FF8C00 100%);
-  background-size: 300px 300px;
-  background-position: 0 0;
+  background-image: url('/polo-banana.jpeg');
+  background-size: cover;
+  background-position: center;
   background-attachment: fixed;
   opacity: 0.07;
   z-index: 0;
