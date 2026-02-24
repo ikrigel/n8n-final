@@ -396,8 +396,8 @@ export default function GenerateImagePage() {
           </div>
         )}
 
-        {/* Recently Generated Images */}
-        {galleryItems.length > 0 && (
+        {/* Recently Generated Images - Hide if image is currently displayed */}
+        {galleryItems.length > 0 && !generatedImageUrl && (
           <div className="mt-12">
             <h2 className="text-2xl font-bold text-amber-700 dark:text-amber-300 mb-6">
               📸 Recently Generated ({galleryItems.length})
