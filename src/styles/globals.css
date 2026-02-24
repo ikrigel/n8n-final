@@ -13,6 +13,7 @@
   --primary-foreground: white;
   --accent: #fbbf24;
   --secondary: #d97706;
+  --time-brightness: 0.5; /* Default for SSR, 0=dark at midnight, 1=bright at noon */
 }
 
 html.dark {

@@ -19,6 +19,8 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
     logLevel: 'info',
     sendLogsAsJson: false,
     theme: 'auto',
+    sidebarPosition: 'left',
+    sidebarCollapsed: false,
   }));
   const [mounted, setMounted] = useState(false);
 
@@ -38,9 +40,44 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  // Calculate time-based brightness (0.0 = midnight, 1.0 = noon, 0.0 = midnight)
+  const getTimeBrightness = () => {
+    const now = new Date();
+    const hour = now.getHours();
+    const minutes = now.getMinutes();
+    const timeDecimal = hour + minutes / 60;
+    return timeDecimal < 12 ? timeDecimal / 12 : (24 - timeDecimal) / 12;
+  };
+
+  // Apply time-based theme updates every 60 seconds
+  useEffect(() => {
+    if (!mounted || config.theme !== 'time') return;
+
+    const updateTimeTheme = () => {
+      const brightness = getTimeBrightness();
+      document.documentElement.style.setProperty('--time-brightness', String(Math.max(0, Math.min(1, brightness))));
+
+      // Toggle dark class based on brightness (dark when < 0.5)
+      const isDarkTime = brightness < 0.5;
+      if (isDarkTime) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    };
+
+    // Update immediately
+    updateTimeTheme();
+
+    // Update every 60 seconds
+    const interval = setInterval(updateTimeTheme, 60000);
+    return () => clearInterval(interval);
+  }, [config.theme, mounted]);
+
   // Apply theme to document
   useEffect(() => {
     if (!mounted) return;
+    if (config.theme === 'time') return; // Time theme handled by separate effect
 
     let effectiveTheme = config.theme;
     if (config.theme === 'auto') {

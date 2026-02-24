@@ -9,12 +9,13 @@ import { useTheme } from '@/hooks/useTheme';
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
-  const themes = ['light', 'dark', 'auto'] as const;
+  const themes = ['light', 'dark', 'auto', 'time'] as const;
 
   const icons = {
     light: '☀️',
     dark: '🌙',
     auto: '🔄',
+    time: '🌅',
   };
 
   const handleClick = () => {

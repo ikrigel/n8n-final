@@ -90,5 +90,7 @@ export interface AppConfig {
   logLevel: 'info' | 'debug' | 'error';
   sendLogsAsJson: boolean;
   telegramId?: string;
-  theme: 'light' | 'dark' | 'auto';
+  theme: 'light' | 'dark' | 'auto' | 'time';
+  sidebarPosition: 'left' | 'right' | 'top' | 'bottom';
+  sidebarCollapsed: boolean;
 }

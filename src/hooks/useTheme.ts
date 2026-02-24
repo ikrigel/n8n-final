@@ -9,7 +9,7 @@ import { useConfig } from '@/contexts/ConfigContext';
 export function useTheme() {
   const { config, updateConfig } = useConfig();
 
-  const setTheme = (theme: 'light' | 'dark' | 'auto') => {
+  const setTheme = (theme: 'light' | 'dark' | 'auto' | 'time') => {
     updateConfig({ theme });
   };
 

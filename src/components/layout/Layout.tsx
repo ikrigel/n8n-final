@@ -17,6 +17,15 @@ export default function Layout({ children }: LayoutProps) {
       {/* Andy Warhol Banana Pop-Art Background */}
       <div className="warhol-bg" />
 
+      {/* Time-based brightness overlay */}
+      <div
+        className="fixed inset-0 pointer-events-none z-[1]"
+        style={{
+          background: 'rgba(0,0,0,calc(max(0, 1 - var(--time-brightness, 0.5)) * 0.7))',
+          transition: 'background 0.5s ease',
+        }}
+      />
+
       {/* Additional decorative emoji elements */}
       <div className="fixed inset-0 pointer-events-none opacity-5 dark:opacity-3">
         {/* You can add background images here: */}
